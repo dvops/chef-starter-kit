@@ -1,0 +1,28 @@
+worker_processes 1;
+pid /var/run/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  access_log /var/log/nginx/access.log;
+  error_log /var/log/nginx/error.log warn;
+
+  upstream app_pool {
+    server 172.25.1.10:8484 weight=1;
+    server 172.25.1.11:8484 weight=1;
+  }
+
+  server {
+    listen 80;
+
+    location / {
+       proxy_pass http://app_pool;
+       expires off;
+    }
+  }
+}
